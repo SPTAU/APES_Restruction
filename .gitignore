@@ -120,3 +120,6 @@ mmseg/.mim
 
 # Pytorch
 *.pth
+
+# nohup output
+*.out

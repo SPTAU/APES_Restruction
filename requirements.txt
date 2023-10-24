@@ -3,3 +3,4 @@ h5py==3.8.0
 mmengine==0.7.2
 pkbar==0.5
 wandb==0.14.0
+yapf!=0.40.2

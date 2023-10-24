@@ -1,5 +1,5 @@
 # dataloaders
-train_dataloader = dict(batch_size=8,  # batch size per GPU
+train_dataloader = dict(batch_size=44,  # batch size per GPU
                         num_workers=4,  # number of workers to load data
                         persistent_workers=True,
                         pin_memory=True,
