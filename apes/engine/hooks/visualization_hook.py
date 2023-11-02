@@ -1,11 +1,14 @@
-import torch
+from typing import Dict, List
+
 import numpy as np
-from mmengine.registry import HOOKS
+import torch
+from einops import pack, rearrange, repeat
 from mmengine.hooks import Hook
-from einops import repeat, pack, rearrange
-from typing import List, Dict
-from ...structures.seg_data_sample import SegDataSample
+from mmengine.registry import HOOKS
+
 from ...structures.cls_data_sample import ClsDataSample
+from ...structures.res_data_sample import ResDataSample
+from ...structures.seg_data_sample import SegDataSample
 
 
 @HOOKS.register_module()
@@ -39,3 +42,8 @@ class SEGVisualizationHook(Hook):
             rgb = palette[output.pred_seg_label.long().cpu().numpy()]
             xyz_rgb, _ = pack([xyz, rgb], 'N *')
             runner.visualizer.add_image(f'seg_pcd{i+runner.test_dataloader.batch_size*(batch_idx*runner.world_size+runner.rank)}', xyz_rgb)
+
+@HOOKS.register_module()
+class RESVisualizationHook(Hook):
+    def after_test_iter(self, runner, batch_idx: int, data_batch: Dict=None, outputs: List[ResDataSample]=None):
+        pass  # [ ] 修改

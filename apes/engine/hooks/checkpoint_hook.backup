@@ -1,10 +1,10 @@
-import os.path
-
-import mmengine.dist as dist
-import mmengine.fileio as fileio
 from mmengine.hooks import CheckpointHook
-from mmengine.logging import print_log
+import os.path as osp
+from mmengine.fileio import FileClient, get_file_backend
 from mmengine.registry import HOOKS
+from mmengine.dist import is_main_process
+from mmengine.logging import print_log
+from mmengine.dist import master_only
 
 
 @HOOKS.register_module()
@@ -13,10 +13,17 @@ class ModifiedCheckpointHook(CheckpointHook):
         """instead of saving checkpoints to work_dir, save checkpoints to log_dir"""
         if self.out_dir is None:
             self.out_dir = runner._log_dir
-        self.file_backend = fileio.get_file_backend(self.out_dir, backend_args=self.backend_args)
+        self.file_client = FileClient.infer_client(self.file_client_args,
+                                                   self.out_dir)
+        if self.file_client_args is None:
+            self.file_backend = get_file_backend(
+                self.out_dir, backend_args=self.backend_args)
+        else:
+            self.file_backend = self.file_client
         if self.out_dir != runner._log_dir:
-            basename = os.path.basename(runner.work_dir.rstrip(os.path.sep))
-            self.out_dir = fileio.join_path(self.out_dir, basename)  # type: ignore  # noqa: E501
+            basename = osp.basename(runner.work_dir.rstrip(osp.sep))
+            self.out_dir = self.file_backend.join_path(
+                self.out_dir, basename)  # type: ignore  # noqa: E501
 
         runner.logger.info(f'Checkpoints will be saved to {self.out_dir}.')
 
@@ -25,14 +32,17 @@ class ModifiedCheckpointHook(CheckpointHook):
                 if 'best_ckpt' not in runner.message_hub.runtime_info:
                     self.best_ckpt_path = None
                 else:
-                    self.best_ckpt_path = runner.message_hub.get_info('best_ckpt')
+                    self.best_ckpt_path = runner.message_hub.get_info(
+                        'best_ckpt')
             else:
                 for key_indicator in self.key_indicators:
                     best_ckpt_name = f'best_ckpt_{key_indicator}'
                     if best_ckpt_name not in runner.message_hub.runtime_info:
                         self.best_ckpt_path_dict[key_indicator] = None
                     else:
-                        self.best_ckpt_path_dict[key_indicator] = runner.message_hub.get_info(best_ckpt_name)
+                        self.best_ckpt_path_dict[
+                            key_indicator] = runner.message_hub.get_info(
+                            best_ckpt_name)
 
 
     def _save_best_checkpoint(self, runner, metrics) -> None:
@@ -74,30 +84,35 @@ class ModifiedCheckpointHook(CheckpointHook):
             best_score = key_score
             runner.message_hub.update_info(best_score_key, best_score)
 
-            if best_ckpt_path and fileio.isfile(best_ckpt_path) and dist.is_main_process():
-                fileio.remove(best_ckpt_path)
+            if best_ckpt_path and \
+               self.file_client.isfile(best_ckpt_path) and \
+               is_main_process():
+                self.file_client.remove(best_ckpt_path)
 
             best_ckpt_name = f'best_{key_indicator}_{ckpt_filename}'
             if len(self.key_indicators) == 1:
-                self.best_ckpt_path = fileio.join_path(self.out_dir, best_ckpt_name)
+                self.best_ckpt_path = self.file_client.join_path(  # type: ignore # noqa: E501
+                    self.out_dir, best_ckpt_name)
                 runner.message_hub.update_info(runtime_best_ckpt_key,
                                                self.best_ckpt_path)
             else:
                 self.best_ckpt_path_dict[
-                    key_indicator] = fileio.join_path(self.out_dir, best_ckpt_name)
+                    key_indicator] = self.file_client.join_path(  # type: ignore # noqa: E501
+                        self.out_dir, best_ckpt_name)
                 runner.message_hub.update_info(
                     runtime_best_ckpt_key,
                     self.best_ckpt_path_dict[key_indicator])
             runner.save_checkpoint(
                 self.out_dir,
                 filename=best_ckpt_name,
+                file_client_args=self.file_client_args,
                 save_optimizer=False,
                 save_param_scheduler=False,
                 by_epoch=False,
                 backend_args=self.backend_args)
 
 
-    @dist.master_only  # need this decorator to avoid multiple processes saving the same checkpoint
+    @master_only  # need this decorator to avoid multiple processes saving the same checkpoint
     def _publish_model(self, runner, ckpt_path: str) -> None:
         from mmengine.runner import save_checkpoint
         from mmengine.runner.checkpoint import _load_checkpoint
@@ -114,7 +129,7 @@ class ModifiedCheckpointHook(CheckpointHook):
                 'found in published_keys. If you want to keep them, '
                 f'please set `{removed_keys}` in published_keys',
                 logger='current')
-        final_path = os.path.splitext(ckpt_path)[0] + '.pth'  # overwrite the original checkpoint
+        final_path = osp.splitext(ckpt_path)[0] + '.pth'  # overwrite the original checkpoint
         save_checkpoint(checkpoint, final_path)
         print_log(
             f'The checkpoint ({ckpt_path}) is published to '

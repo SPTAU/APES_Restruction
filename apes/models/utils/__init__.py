@@ -1,1 +1,1 @@
-from .losses import CrossEntropyLoss, ConsistencyLoss
+from .losses import CrossEntropyLoss, ConsistencyLoss, ChamferDistanceLoss

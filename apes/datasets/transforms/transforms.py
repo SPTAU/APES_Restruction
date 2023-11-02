@@ -1,6 +1,6 @@
 from mmengine.registry import TRANSFORMS
 from .basetransform import BaseTransform
-from typing import Dict
+from typing import Dict, List, Optional, Tuple, Union
 from einops import rearrange, repeat
 import numpy as np
 import torch
@@ -26,6 +26,17 @@ class ToSEGTensor(BaseTransform):
         results['seg_label'] = torch.tensor(results['seg_label']).to(torch.float32)  # array to tensor
         results['seg_label_onehot'] = F.one_hot(results['seg_label'].long(), 50).to(torch.float32)  # shape == (N, 50)
         results['seg_label_onehot'] = rearrange(results['seg_label_onehot'], 'N C -> C N')  # shape == (50, N)
+        return results
+
+
+@TRANSFORMS.register_module()
+class ToRESTensor(BaseTransform):
+    def transform(self, results: Dict) -> Dict:
+        results['pcd'] = rearrange(torch.tensor(results['pcd']).to(torch.float32), 'N C -> C N')  # PyTorch requires (C, N) format
+        results['gt_pts'] = results['pcd']
+        results['cls_label'] = torch.tensor(results['cls_label']).to(torch.float32)   # array to tensor
+        results['cls_label_onehot'] = F.one_hot(results['cls_label'].long(), 40).to(torch.float32)  # shape == (1, 40)
+        results['cls_label_onehot'] = repeat(results['cls_label_onehot'], 'C -> C 1')  # shape == (40, 1)
         return results
 
 

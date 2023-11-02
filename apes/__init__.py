@@ -3,3 +3,4 @@ from .evaluation import *
 from .models import *
 from .engine import *
 from .visualization import *
+from .structures import *

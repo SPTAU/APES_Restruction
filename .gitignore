@@ -123,3 +123,6 @@ mmseg/.mim
 
 # nohup output
 *.out
+
+# chamfer distance
+apes/evaluation/metrics/ChamferDistancePytorch/*

@@ -1,6 +1,8 @@
-from mmengine.registry import HOOKS
-from mmengine.hooks import LoggerHook
 from typing import Optional, Sequence, Union
+
+from mmengine.hooks import LoggerHook
+from mmengine.registry import HOOKS
+
 DATA_BATCH = Optional[Union[dict, tuple, list]]
 SUFFIX_TYPE = Union[Sequence[str], str]
 

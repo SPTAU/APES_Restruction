@@ -3,7 +3,6 @@ from apes.models.utils import ops
 from torch import nn
 from einops import rearrange, repeat
 
-
 class Embedding(nn.Module):
     def __init__(self):
         super(Embedding, self).__init__()

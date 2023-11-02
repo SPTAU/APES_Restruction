@@ -1,8 +1,10 @@
-import apes  # this line is necessary because we need to register all apes modules
 import argparse
+import os
+
 from mmengine.config import Config
 from mmengine.runner import Runner
-import os
+
+import apes  # this line is necessary because we need to register all apes modules
 
 
 def parse_args():
