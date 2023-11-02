@@ -20,12 +20,6 @@ def main():
     args = parse_args()
     cfg = Config.fromfile(args.config)
     cfg.launcher = args.launcher
-    cfg.visualizer.vis_backends = [dict(type='ModifiedLocalVisBackend')]
-    if args.vis:
-        if cfg.test_dataloader.dataset.type == 'ModelNet':
-            cfg.custom_hooks = [dict(type='CLSVisualizationHook')]
-        elif cfg.test_dataloader.dataset.type == 'ShapeNet':
-            cfg.custom_hooks = [dict(type='SEGVisualizationHook')]
     runner = Runner.from_cfg(cfg)
     os.system(f'rm -rf {os.path.join(runner.work_dir, f"{cfg.experiment_name}.py")}')  # remove cfg file from work_dir
     cfg.dump(os.path.join(runner.log_dir, f'{cfg.experiment_name}.py'))  # save cfg file to log_dir

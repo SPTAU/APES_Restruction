@@ -1,10 +1,12 @@
-from mmengine.registry import MODELS
-from mmengine.model import BaseModel
 from typing import List
-from torch import Tensor
-from ...structures.res_data_sample import ResDataSample
+
 import torch
 from einops import pack
+from mmengine.model import BaseModel
+from mmengine.registry import MODELS
+from torch import Tensor
+
+from ...structures.res_data_sample import ResDataSample
 
 
 @MODELS.register_module()
@@ -46,12 +48,11 @@ class APESRestructor(BaseModel):
 
     def predict(self, inputs: Tensor, data_samples: List[ResDataSample]) -> List[ResDataSample]:
         data_samples_list = []
-        gt_pts_lists = self.get_gt_pts(data_samples)
         gt_cls_labels_onehot= self.get_gt_labels_onehot(data_samples)
         x = self.extract_features(inputs, gt_cls_labels_onehot)
-        pred_pts_lists = self.head(x)  # [X] 修改 head
-        for data_sample, pred_pts_list in zip(data_samples, pred_pts_lists):
-            data_sample.pred_pts = pred_pts_list
+        pred_ptss = self.head(x)  # [X] 修改 head
+        for data_sample, pred_pts in zip(data_samples, pred_ptss):
+            data_sample.pred_pts = pred_pts
             data_samples_list.append(data_sample)
         return data_samples_list
 

@@ -1,1 +1,1 @@
-from .local_backend import ModifiedLocalVisBackend
+from .local_backend import ModifiedLocalVisBackend, ResLocalVisBackend

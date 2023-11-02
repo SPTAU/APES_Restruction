@@ -16,7 +16,7 @@ log_processor = dict(by_epoch=True,  # whether to log by epoch or by iteration
                                       log_name='loss',  # you can rename the data source here
                                       method_name='mean',  # method to aggregate data. can be 'mean', 'max', 'min' and 'current'
                                       window_size='epoch')])
-visualizer = dict(type='APESRESVisualizer',
+visualizer = dict(type='APESVisualizer',
                   vis_backends=[dict(type='TensorboardVisBackend')])
 # all other configs
 cfg = dict(compile=True,  # can be a boolean or a dict containing compile options. only valid in PyTorch 2.x

@@ -3,7 +3,7 @@ optim_wrapper = dict(type='AmpOptimWrapper',  # can be OptimWrapper or AmpOptimW
                      optimizer=dict(type='AdamW', lr=1e-4, weight_decay=1))
 
 # mmengine will scale the lr according to the ratio=(per-GPU_bs * world_size) / base_batch_size
-auto_scale_lr = dict(base_batch_size=90, enable=False)
+auto_scale_lr = dict(base_batch_size=100, enable=False)
 
 # lr scheduler. check https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate for more lr schedulers
 param_scheduler = [dict(type='LinearLR',
