@@ -12,7 +12,7 @@ param_scheduler = [dict(type='LinearLR',
                         by_epoch=True,
                         begin=0,
                         end=10),
-                   dict(type='CosineAnnealingLR',
+                    dict(type='CosineAnnealingLR',
                         T_max=190,  # 1/2 period of cosine function
                         eta_min=0,  # min lr
                         by_epoch=True,
@@ -43,5 +43,5 @@ default_hooks = dict(runtime_info=dict(type='RuntimeInfoHook'),  # update runtim
                                      published_keys=['state_dict'],  # keys to be saved in checkpoint, e.g. 'state_dict', 'optimizer', 'param_schedulers', 'meta', 'message_hub'
                                      save_last=False,  # save the last checkpoint
                                      save_best=['Restuctation/val_chamfer_dist'],  # save best ckpts according to metrics. can be multiple metrics
-                                     rule=['greater']))  # rule for best score. should have the same length as save_best
+                                     rule=['less']))  # rule for best score. should have the same length as save_best
 custom_hooks = None  # hooks to execute custom actions like visualizing images processed by pipeline

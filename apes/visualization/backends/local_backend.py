@@ -1,4 +1,5 @@
 import os
+import pdb
 from typing import Sequence
 
 import matplotlib.pyplot as plt
@@ -49,7 +50,11 @@ class ResLocalVisBackend(LocalVisBackend):
     @force_init_env
     def add_image(self, name, pcd: np.ndarray, **kwargs):
         # pcd.shape == (N, C), where C: x y z r g b
-        os.makedirs(self._img_save_dir, exist_ok=True)
+        if '/' in name:
+            sub_folder = name.split('/')[0]
+            os.makedirs(os.path.join(self._img_save_dir, sub_folder), exist_ok=True)
+        else:
+            os.makedirs(self._img_save_dir, exist_ok=True)
         saved_path = os.path.join(self._img_save_dir, f'{name}.png')
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -57,6 +62,26 @@ class ResLocalVisBackend(LocalVisBackend):
         ax.set_ylim3d(-0.6, 0.6)
         ax.set_zlim3d(-0.6, 0.6)
         ax.scatter(pcd[:, 0], pcd[:, 2], pcd[:, 1], c='r', label='gt_pts', marker='o', s=2)
+        ax.scatter(pcd[:, 3], pcd[:, 5], pcd[:, 4], c='g', label='pred_pts', marker='o', s=2)
+        plt.axis('off')
+        plt.grid('off')
+        plt.savefig(saved_path, bbox_inches='tight')
+        plt.close(fig)
+
+    @force_init_env
+    def add_single_image(self, name, pcd: np.ndarray, **kwargs):
+        # pcd.shape == (N, C), where C: x y z r g b
+        if '/' in name:
+            sub_folder = name.split('/')[0]
+            os.makedirs(os.path.join(self._img_save_dir, sub_folder), exist_ok=True)
+        else:
+            os.makedirs(self._img_save_dir, exist_ok=True)
+        saved_path = os.path.join(self._img_save_dir, f'{name}.png')
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.set_xlim3d(-0.6, 0.6)
+        ax.set_ylim3d(-0.6, 0.6)
+        ax.set_zlim3d(-0.6, 0.6)
         ax.scatter(pcd[:, 3], pcd[:, 5], pcd[:, 4], c='g', label='pred_pts', marker='o', s=2)
         plt.axis('off')
         plt.grid('off')

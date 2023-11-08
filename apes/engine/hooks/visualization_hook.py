@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List
 
 import numpy as np
@@ -48,15 +49,21 @@ class RESVisualizationHook(Hook):
     def after_test_iter(self, runner, batch_idx: int, data_batch: Dict=None, outputs: List[ResDataSample]=None) -> None:
         inputs = rearrange(data_batch['inputs'], 'B C N -> B N C').cpu().numpy()
         for i, output in enumerate(outputs):
+            idx = i+runner.test_dataloader.batch_size*(batch_idx*runner.world_size+runner.rank)
             gt_xyz = output.gt_pts.transpose(0, 1).cpu().numpy()
             pred_xyz = output.pred_pts.transpose(0, 1).cpu().numpy()
             gt_pred_xyz, _ = pack([gt_xyz, pred_xyz], 'N *')
-            runner.visualizer.add_image(f'res_pcd{i+runner.test_dataloader.batch_size*(batch_idx*runner.world_size+runner.rank)}', gt_pred_xyz)
+            runner.visualizer.add_image(f'res_pcd{idx}', gt_pred_xyz)
+            # runner.visualizer.add_single_image(f'res_pcd{idx}', gt_pred_xyz)
 
     def after_val_iter(self, runner, batch_idx: int, data_batch: Dict=None, outputs: List[ResDataSample]=None) -> None:
-        inputs = rearrange(data_batch['inputs'], 'B C N -> B N C').cpu().numpy()
-        for i, output in enumerate(outputs):
-            gt_xyz = output.gt_pts.transpose(0, 1).cpu().numpy()
-            pred_xyz = output.pred_pts.transpose(0, 1).cpu().numpy()
-            gt_pred_xyz, _ = pack([gt_xyz, pred_xyz], 'N *')
-            runner.visualizer.add_image(f'epoch{runner.epoch}/res_pcd{i+runner.val_dataloader.batch_size*(batch_idx*runner.world_size+runner.rank)}', gt_pred_xyz)
+        if runner.epoch % 10 == 0:
+            # os.makedirs(os.path.join(runner.visualizer._img_save_dir, runner.epoch), exist_ok=True)
+            inputs = rearrange(data_batch['inputs'], 'B C N -> B N C').cpu().numpy()
+            for i, output in enumerate(outputs):
+                idx = i + runner.val_dataloader.batch_size * (batch_idx * runner.world_size + runner.rank)
+                if idx < 10 and idx >=0:
+                    gt_xyz = output.gt_pts.transpose(0, 1).cpu().numpy()
+                    pred_xyz = output.pred_pts.transpose(0, 1).cpu().numpy()
+                    gt_pred_xyz, _ = pack([gt_xyz, pred_xyz], 'N *')
+                    runner.visualizer.add_image(f'epoch{runner.epoch}/res_pcd{idx}', gt_pred_xyz)

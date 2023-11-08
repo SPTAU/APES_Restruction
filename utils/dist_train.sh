@@ -1,5 +1,6 @@
 CONFIG=$1
 GPUS=$2
+VIS=$3
 
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
@@ -15,4 +16,5 @@ torchrun \
     --nproc_per_node=$NUM_GPUS \
     $(dirname "$0")/train.py \
     $CONFIG \
-    --launcher pytorch
+    --launcher pytorch \
+    $VIS

@@ -2,15 +2,15 @@ import torch
 from mmengine.evaluator import BaseMetric
 from mmengine.registry import METRICS
 
-from .ChamferDistancePytorch.chamfer3D.dist_chamfer_3D import chamfer_3DDist
+from .PyTorchEMD.cuda.emd import earth_mover_distance
 
 
 @METRICS.register_module()
-class ChamferDistance(BaseMetric):
+class EarthMoversDistance(BaseMetric):
     def __init__(self, mode='val'):
-        super(ChamferDistance, self).__init__()
+        super(EarthMoversDistance, self).__init__()
         self.mode = mode
-        self.cd_function = chamfer_3DDist()
+        self.emd_function = earth_mover_distance()
 
     default_prefix = 'Restuctation'
 
@@ -22,14 +22,13 @@ class ChamferDistance(BaseMetric):
     def compute_metrics(self, results) -> dict:
         pred_pts_tensor = torch.stack([result['pred_pts'] for result in results])
         gt_pts_tensor = torch.stack([result['gt_pts'] for result in results])
-        pred_pts = pred_pts_tensor.transpose(-2, -1).cuda()
-        gt_pts = gt_pts_tensor.transpose(-2, -1).float().cuda()
-        dist1, dist2, _, _ = self.cd_function(pred_pts, gt_pts)
-        chamferDistance = (dist1.mean(axis=1) + dist2.mean(axis=1))
-        chamferDistance = torch.sum(chamferDistance) / gt_pts.shape[0]
+        pred_pts = pred_pts_tensor.cuda()
+        gt_pts = gt_pts_tensor.float().cuda()
+        dist = self.emd_function(pred_pts, gt_pts)
+        earthMoversDistance = torch.sum(dist) / gt_pts.shape[0]
         if self.mode == 'val':
-            return dict(val_chamfer_dist=chamferDistance)
+            return dict(val_chamfer_dist=earthMoversDistance)
         elif self.mode == 'test':
-            return dict(test_chamfer_dist=chamferDistance)
+            return dict(test_chamfer_dist=earthMoversDistance)
         else:
             raise RuntimeError(f'Invalid mode "{self.mode}". Only supports val and test mode')

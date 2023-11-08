@@ -123,3 +123,7 @@ mmseg/.mim
 
 # nohup output
 *.out
+
+# submodule
+apes/evalution/metrics/ChamferDistancePytorch
+apes/evalution/metrics/PyTorchEMD

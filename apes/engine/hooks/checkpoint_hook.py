@@ -80,8 +80,7 @@ class ModifiedCheckpointHook(CheckpointHook):
             best_ckpt_name = f'best_{key_indicator}_{ckpt_filename}'
             if len(self.key_indicators) == 1:
                 self.best_ckpt_path = fileio.join_path(self.out_dir, best_ckpt_name)
-                runner.message_hub.update_info(runtime_best_ckpt_key,
-                                               self.best_ckpt_path)
+                runner.message_hub.update_info(runtime_best_ckpt_key, self.best_ckpt_path)
             else:
                 self.best_ckpt_path_dict[
                     key_indicator] = fileio.join_path(self.out_dir, best_ckpt_name)
