@@ -125,5 +125,5 @@ mmseg/.mim
 *.out
 
 # submodule
-apes/evalution/metrics/ChamferDistancePytorch
-apes/evalution/metrics/PyTorchEMD
+apes/evalution/metrics/ChamferDistancePytorch/
+apes/evalution/metrics/PyTorchEMD/
