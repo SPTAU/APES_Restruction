@@ -1,5 +1,5 @@
 # dataloaders
-train_dataloader = dict(batch_size=42,  # batch size per GPU
+train_dataloader = dict(batch_size=64,  # batch size per GPU
                         num_workers=4,  # number of workers to load data
                         persistent_workers=True,
                         pin_memory=True,
@@ -16,7 +16,7 @@ train_dataloader = dict(batch_size=42,  # batch size per GPU
                         sampler=dict(type='DefaultSampler',  # DefaultSampler is designed for epoch-based training. It can handle both distributed and non-distributed training.
                                      shuffle=True),
                         collate_fn=dict(type='default_collate'))  # this will concatenate all the data in a batch into a single tensor
-val_dataloader = dict(batch_size=42,
+val_dataloader = dict(batch_size=32,
                       num_workers=4,
                       persistent_workers=True,
                       pin_memory=True,

@@ -22,14 +22,14 @@ class ChamferDistance(BaseMetric):
     def compute_metrics(self, results) -> dict:
         pred_pts_tensor = torch.stack([result['pred_pts'] for result in results])
         gt_pts_tensor = torch.stack([result['gt_pts'] for result in results])
-        pred_pts = pred_pts_tensor.transpose(-2, -1).cuda()
+        pred_pts = pred_pts_tensor.transpose(-2, -1).float().cuda()
         gt_pts = gt_pts_tensor.transpose(-2, -1).float().cuda()
         dist1, dist2, _, _ = self.cd_function(pred_pts, gt_pts)
         chamferDistance = (dist1.mean(axis=1) + dist2.mean(axis=1))
         chamferDistance = torch.sum(chamferDistance) / gt_pts.shape[0]
         if self.mode == 'val':
-            return dict(val_chamfer_dist=chamferDistance)
+            return dict(val_CD=chamferDistance)
         elif self.mode == 'test':
-            return dict(test_chamfer_dist=chamferDistance)
+            return dict(test_CD=chamferDistance)
         else:
             raise RuntimeError(f'Invalid mode "{self.mode}". Only supports val and test mode')

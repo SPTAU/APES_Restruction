@@ -3,7 +3,7 @@ optim_wrapper = dict(type='AmpOptimWrapper',  # can be OptimWrapper or AmpOptimW
                      optimizer=dict(type='AdamW', lr=1e-4, weight_decay=1))
 
 # mmengine will scale the lr according to the ratio=(per-GPU_bs * world_size) / base_batch_size
-auto_scale_lr = dict(base_batch_size=100, enable=False)
+auto_scale_lr = dict(base_batch_size=64, enable=False)
 
 # lr scheduler. check https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate for more lr schedulers
 param_scheduler = [dict(type='LinearLR',
@@ -42,6 +42,6 @@ default_hooks = dict(runtime_info=dict(type='RuntimeInfoHook'),  # update runtim
                                      save_param_scheduler=True,  # whether to save param scheduler status. will be deleted if not included in published_keys
                                      published_keys=['state_dict'],  # keys to be saved in checkpoint, e.g. 'state_dict', 'optimizer', 'param_schedulers', 'meta', 'message_hub'
                                      save_last=False,  # save the last checkpoint
-                                     save_best=['Restuctation/val_chamfer_dist'],  # save best ckpts according to metrics. can be multiple metrics
+                                     save_best=['Restuctation/val_CD'],  # save best ckpts according to metrics. can be multiple metrics
                                      rule=['less']))  # rule for best score. should have the same length as save_best
 custom_hooks = None  # hooks to execute custom actions like visualizing images processed by pipeline

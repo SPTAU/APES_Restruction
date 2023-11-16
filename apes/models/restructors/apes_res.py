@@ -23,7 +23,7 @@ class APESRestructor(BaseModel):
         self.neck = MODELS.build(neck) if neck is not None else None
         self.head = MODELS.build(head)
         self.cd_loss = MODELS.build(dict(type='ChamferDistanceLoss'))  # [X] 修改LOSS 为 CDLoss
-        # self.emd_loss = MODELS.build(dict(type='EarthMoversDistance'))  # [X] 新增 EMD Loss
+        self.emd_loss = MODELS.build(dict(type='EarthMoversDistance'))  # [X] 新增 EMD Loss
 
     def forward(self, inputs: Tensor, data_samples: List[ResDataSample], mode: str):
         # 不需要修改
@@ -43,10 +43,9 @@ class APESRestructor(BaseModel):
         losses = dict()
         x = self.extract_features(inputs, gt_cls_labels_onehot)
         pred_pts = self.head(x)
-        cd_loss = self.cd_loss(pred_pts, gt_pts)
-        losses.update(dict(loss=cd_loss))
-        # emd_loss = self.emd_loss(pred_pts, gt_pts)
-        # losses.update(dict(loss=cd_loss + emd_loss))
+        # cd_loss = self.cd_loss(pred_pts, gt_pts)
+        emd_loss = self.emd_loss(pred_pts, gt_pts)
+        losses.update(dict(loss=emd_loss))
         return losses
 
     def predict(self, inputs: Tensor, data_samples: List[ResDataSample]) -> List[ResDataSample]:

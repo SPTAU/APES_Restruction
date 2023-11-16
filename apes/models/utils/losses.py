@@ -3,8 +3,7 @@ from torch import nn
 
 from ...evaluation.metrics.ChamferDistancePytorch.chamfer3D.dist_chamfer_3D import \
     chamfer_3DDist
-
-# from ...evaluation.metrics.PyTorchEMD.cuda.emd import earth_mover_distance
+from ...evaluation.metrics.PyTorchEMD.cuda.emd import earth_mover_distance
 
 
 @MODELS.register_module()
@@ -42,12 +41,12 @@ class ChamferDistanceLoss(nn.Module):
         self.loss_fn = chamfer_3DDist()
 
     def forward(self, pred_pts, gt_pts):
-        dist1, dist2, _, _ = self.loss_fn(pred_pts.transpose(-2,-1).float(), gt_pts.transpose(-2,-1))
+        dist1, dist2, _, _ = self.loss_fn(pred_pts.transpose(-2,-1).float(), gt_pts.transpose(-2,-1).float())
         loss = (dist1.mean(axis=1) + dist2.mean(axis=1))
         loss = sum(loss) / len(gt_pts)
         return loss
 
-'''
+
 @MODELS.register_module()
 class EarthMoversDistance(nn.Module):
     def __init__(self):
@@ -55,7 +54,6 @@ class EarthMoversDistance(nn.Module):
         self.emd_function = earth_mover_distance()
 
     def forward(self, pred_pts, gt_pts):
-        dist = self.emd_function(pred_pts.float(), gt_pts)
+        dist = self.emd_function(pred_pts.transpose(-2,-1).float(), gt_pts.transpose(-2,-1).float())
         loss = sum(dist) / len(gt_pts)
         return loss
-'''

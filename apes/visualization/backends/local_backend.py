@@ -1,10 +1,7 @@
 import os
-import pdb
-from typing import Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
-import torch
 from mmengine.registry import VISBACKENDS
 from mmengine.visualization.vis_backend import LocalVisBackend, force_init_env
 

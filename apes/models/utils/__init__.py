@@ -1,1 +1,2 @@
-from .losses import ChamferDistanceLoss, ConsistencyLoss, CrossEntropyLoss#, EarthMoversDistance
+from .losses import (ChamferDistanceLoss, ConsistencyLoss, CrossEntropyLoss,
+                     EarthMoversDistance)
